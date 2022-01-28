@@ -17,6 +17,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow_addons.optimizers import NovoGrad
 from pointwise_shuffle import pointwise_conv
 from tensorflow.keras.utils import to_categorical
+from warmup_lr_sheduler import WarmUpLearningRateScheduler
 
 from matplotlib import pyplot
 # pyplot.switch_backend('agg')
@@ -138,8 +139,18 @@ def fine_tune(x_train, y_train, x_test, y_test, x_val, y_val):
     classifier.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     classifier.summary()
 
+    """
+    warm-up learning rate scheduler 
+    (Not the exact learning rate scheduler implemented in the paper)
+    """
+    # Compute the number of warmup batches.
+    warmup_epoch = EPOCHS*(5/100)  # 5% of the Epochs
+    warmup_batches = warmup_epoch * x_train.shape[0] / BATCH_SIZE
+    warm_up_lr = WarmUpLearningRateScheduler(warmup_batches, init_lr=0.05)
+
+    # fit the model
     history = classifier.fit(x_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,
-                              verbose=1, validation_data=(x_val, y_val))
+                              verbose=1, validation_data=(x_val, y_val), callbacks=[warm_up_lr])
 
     # compute train accuracy
     _, train_acc = classifier.evaluate(x_train, y_train, verbose=0)
@@ -179,7 +190,7 @@ if __name__ == '__main__':
     NUM_FILTERS_CONV3 = params['NUM_FILTERS_CONV'][2]
     # LR = 1e-4
     DROPOUT_PROB1 = params['DROPOUT_PROB1']
-    EPOCHS = 2
+    EPOCHS = 20
     BATCH_SIZE = 128
     FILTER_SIZE1 = params['FILTER_SIZE'][0]
     FILTER_SIZE2 = params['FILTER_SIZE'][1]
