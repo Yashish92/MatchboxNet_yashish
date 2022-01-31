@@ -102,12 +102,12 @@ def matchbox_model(sample_x):
         out = match_block(out, kernel_sizes[i], No_of_R)
 
     #epilog layer_1
-    conv2 = Conv1D(NUM_FILTERS_CONV2, FILTER_SIZE2, padding='same', dilation_rate=2)(inp)
+    conv2 = Conv1D(NUM_FILTERS_CONV2, FILTER_SIZE2, padding='same', dilation_rate=2)(out)
     bn2 = BatchNormalization()(conv2)
     pl2_out = ReLU()(bn2)
 
     #epilog layer_2
-    conv3 = Conv1D(NUM_FILTERS_CONV3, FILTER_SIZE3, padding='same')(inp)
+    conv3 = Conv1D(NUM_FILTERS_CONV3, FILTER_SIZE3, padding='same')(pl2_out)
     bn3 = BatchNormalization()(conv3)
     pl3_out = ReLU()(bn3)
 
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     NUM_FILTERS_CONV3 = params['NUM_FILTERS_CONV'][2]
     # LR = 1e-4
     DROPOUT_PROB1 = params['DROPOUT_PROB1']
-    EPOCHS = 20
+    EPOCHS = 5
     BATCH_SIZE = 128
     FILTER_SIZE1 = params['FILTER_SIZE'][0]
     FILTER_SIZE2 = params['FILTER_SIZE'][1]
