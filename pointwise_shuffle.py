@@ -39,7 +39,7 @@ def _shuffle(x, nb_groups):
         nb_chan_per_grp = n // nb_groups
 
         x = K.reshape(x, (-1, h, nb_chan_per_grp, nb_groups))
-        x = K.permute_dimensions(x, (0, 1, 2, 3)) # Transpose only grps and chs
+        x = K.permute_dimensions(x, (0, 1, 3, 2)) # Transpose only grps and chs
         x = K.reshape(x, (-1, h, n))
 
         return x
